@@ -1,6 +1,6 @@
 deprecated.lo: deprecated.c nlopt.h \
- /usr/lib/gcc/i486-linux-gnu/4.5.2/include/stddef.h
+ /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stddef.h
 
 nlopt.h:
 
-/usr/lib/gcc/i486-linux-gnu/4.5.2/include/stddef.h:
+/usr/lib/gcc/i686-linux-gnu/4.4.5/include/stddef.h:
