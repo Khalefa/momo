@@ -1,0 +1,1 @@
+FILL MODELGRAPH FOR FORECAST OF amt ON a_time ALGORITHM hwmodel PARAMETERS(has_season=1, has_trend=1, period=4, error='SSE') training_data (SELECT a_time, SUM(a_visitors) AS amt FROM australia GROUP BY a_time ORDER BY a_time) METHOD GREEDY

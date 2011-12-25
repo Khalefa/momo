@@ -1,0 +1,1 @@
+FILL MODELGRAPH FOR FORECAST OF amt ON s_time ALGORITHM hwmodel PARAMETERS(has_season=1, has_trend=1, period=12, error='SSE') training_data (SELECT s_time, SUM(s_amount) AS amt FROM sales GROUP BY s_time ORDER BY s_time) METHOD TOPDOWN

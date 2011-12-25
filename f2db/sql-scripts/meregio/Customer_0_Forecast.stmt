@@ -1,0 +1,4 @@
+SELECT e_time, SUM(e_amount) am 
+	FROM edemand
+	WHERE e_customer='me0'
+	GROUP BY e_time ORDER BY e_time

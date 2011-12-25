@@ -1,0 +1,325 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Installation</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PL/R User's Guide - R Procedural Language"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Overview"
+HREF="plr-overview.html"><LINK
+REL="NEXT"
+TITLE="Functions and Arguments"
+HREF="plr-funcs.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=ISO-8859-1"><META
+NAME="creation"
+CONTENT="2009-04-19T00:14:01"></HEAD
+><BODY
+CLASS="CHAPTER"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+>PL/R User's Guide - R Procedural Language</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-overview.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-overview.html"
+>Fast Backward</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-funcs.html"
+>Fast Forward</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-funcs.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="PLR-INSTALL"
+></A
+>Chapter 2. Installation</H1
+><P
+>   Place source tar file in <TT
+CLASS="LITERAL"
+>contrib</TT
+> in the PostgreSQL source
+   tree and untar it. The shared object for the R call handler is built and
+   installed in the PostgreSQL library directory via the following commands
+   (starting from <TT
+CLASS="LITERAL"
+>/path/to/postgresql_source/contrib</TT
+>):
+   </P><PRE
+CLASS="PROGRAMLISTING"
+>    cd plr
+    make
+    make install
+   </PRE
+><P>
+  </P
+><P
+>   As of PostgreSQL 8.0.0, PL/R can also be built without the PostgreSQL source
+   tree. Untar PL/R whereever you prefer. The shared object for the R call handler
+   is built and installed in the PostgreSQL library directory via the following
+   commands (starting from <TT
+CLASS="LITERAL"
+>/path/to/plr</TT
+>):
+   </P><PRE
+CLASS="PROGRAMLISTING"
+>    cd plr
+    USE_PGXS=1 make
+    USE_PGXS=1 make install
+   </PRE
+><P>
+  </P
+><P
+>   Win32 - adjust paths according to your own setup, and be sure to restart
+   the PostgreSQL service after changing:
+   </P><PRE
+CLASS="PROGRAMLISTING"
+>    In Windows environment:
+    R_HOME=C:\Progra~1\R\R-2.5.0
+    Path=%PATH%;C:\Progra~1\R\R-2.5.0\bin
+
+    In MSYS:
+    export R_HOME=/c/progra~1/R/R-2.5.0
+    export PATH=$PATH:/c/progra~1/PostgreSQL/8.2/bin
+    USE_PGXS=1 make
+    USE_PGXS=1 make install
+   </PRE
+><P>
+  </P
+><P
+>   You can use <TT
+CLASS="LITERAL"
+>plr.sql</TT
+> (which is created in
+   <TT
+CLASS="LITERAL"
+>contrib/plr</TT
+>) to create the language and support
+   functions in your database of choice:
+   </P><PRE
+CLASS="PROGRAMLISTING"
+>    psql mydatabase &#60; plr.sql
+   </PRE
+><P>
+   Alternatively you can create the language manually using SQL commands:
+   </P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION plr_call_handler()
+RETURNS LANGUAGE_HANDLER
+AS '$libdir/plr' LANGUAGE C;
+
+CREATE LANGUAGE plr HANDLER plr_call_handler;
+   </PRE
+><P>
+  </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>Tip: </B
+>    If a language is installed into <TT
+CLASS="LITERAL"
+>template1</TT
+>, all
+    subsequently created databases will have the language installed
+    automatically.
+   </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>Tip: </B
+>    In addition to the documentation, the <TT
+CLASS="LITERAL"
+>plr.out.*</TT
+> files
+    in <TT
+CLASS="LITERAL"
+>plr/expected</TT
+> are a good source of usage examples.
+   </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>Tip: </B
+>    R headers are required. Download and install R prior to building PL/R.
+    R must have been built with the <TT
+CLASS="LITERAL"
+>--enable-R-shlib</TT
+> option
+    when it was configured, in order for the libR shared object library to be
+    available.
+   </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>Tip: </B
+>    Additionally, libR must be findable by your runtime linker.
+    On Linux, this involves adding an entry in /etc/ld.so.conf for the
+    location of libR (typically $R_HOME/bin or $R_HOME/lib), and then
+    running ldconfig. Refer to <TT
+CLASS="LITERAL"
+>man ldconfig</TT
+> or its
+    equivalent for your system.
+   </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>Tip: </B
+>    R_HOME must be defined in the environment of the user under which
+    PostgreSQL is started, <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>before</I
+></SPAN
+> the postmaster
+    is started. Otherwise PL/R will refuse to load. See plr_environ(),
+    which allows examination of the environment available to the
+    PostgreSQL postmaster process.
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-overview.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-funcs.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Overview</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Functions and Arguments</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

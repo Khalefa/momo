@@ -1,0 +1,34 @@
+There are several run-time configuration parameters to influence the integrated optimizers. To set them use:
+
+Set [parameter] to [value];
+
+Possible parameters are:
+
+optim_method_general: Set the optimization method used in general
+Available values: DIRECT-L, CRS, MLSL, ISRES, COBYLA, BOBYQA, Nelder-Mead, Sbplx, MMA, SLSQP, LBFGS
+For further Information about the algorithms go to: 
+http://ab-initio.mit.edu/wiki/index.php/NLopt_Algorithms
+
+optim_method_local: Set the local optimization method used by MLSL 
+Available values: DIRECT-L, CRS, MLSL, ISRES, COBYLA, BOBYQA, Nelder-Mead, Sbplx, MMA, SLSQP, LBFGS
+
+To control the termination behaviour all nlopt-Stopping criteria can be set through:
+
+optim_term_maxtime: Set the maximal optimization time in s
+Available values: float value>=0, 0 to disable
+
+optim_term_maxeval: Set the maximal function evaluation count
+Available values: int  value>=0, -1 to disable
+
+optim_term_ftol_abs: Set absolute termination tolerance on the function value
+Available values: float  value>=0, 0 to disable
+
+optim_term_ftol_rel: Set relative termination tolerance on the function value
+Available values: float  value>=0, 0 to disable
+
+optim_term_xtol_abs: Set absolute termination tolerance on the variable values
+Available values: float  value>=0, 0 to disable
+
+optim_term_xtol_rel: Set relative termination tolerance on the variable values
+Available values: float  value>=0, 0 to disable
+

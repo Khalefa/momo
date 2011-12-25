@@ -1,0 +1,50 @@
+body {font-family:"Verdana", sans-serif;}
+
+
+#portal-columns {
+    width: 100% !important;
+    margin: 0;
+	
+}
+
+#portal-column-one {
+    vertical-align: top;
+    width: 200px;
+	background: #0B2A51
+}
+
+#portal-column-content {
+    vertical-align: top;
+    margin: 0;
+    padding-left: 30px;
+	padding-right: 30px;
+	padding-top: 30px;
+	padding-bottom: 60px;
+	
+}
+
+#portal-column-two {
+    vertical-align: top;
+    width: 200px;
+	background: #0B2A51
+}
+
+/* Padding for the columns */
+
+#portal-column-one .visualPadding {
+    padding:0;
+}
+#portal-column-content .visualPadding {
+    padding: 0;
+}
+#portal-column-two .visualPadding {
+    padding: 0;
+}
+
+.white {color: white; font-size: 10pt; font-weight: bold}
+
+.center{text-align: center}
+.right{text-align: right; padding-right:7px}
+.left{text-align: left;  padding-left:7px}
+
+/*  */

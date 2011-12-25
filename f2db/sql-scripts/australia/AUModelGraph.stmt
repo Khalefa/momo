@@ -1,0 +1,1 @@
+CREATE MODELGRAPH a_state,a_reason FROM (SELECT * FROM australia);

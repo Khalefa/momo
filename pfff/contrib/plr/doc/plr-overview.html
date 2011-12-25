@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Overview</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PL/R User's Guide - R Procedural Language"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="PL/R User's Guide - R Procedural Language"
+HREF="index.html"><LINK
+REL="NEXT"
+TITLE="Installation"
+HREF="plr-install.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=ISO-8859-1"><META
+NAME="creation"
+CONTENT="2009-04-19T00:14:01"></HEAD
+><BODY
+CLASS="CHAPTER"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+>PL/R User's Guide - R Procedural Language</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="index.html#AEN3"
+>Fast Backward</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-install.html"
+>Fast Forward</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-install.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="PLR-OVERVIEW"
+></A
+>Chapter 1. Overview</H1
+><P
+>    PL/R is a loadable procedural language that enables you to write
+    PostgreSQL functions and triggers in the
+    <A
+HREF="http://www.r-project.org/"
+TARGET="_top"
+>R programming language</A
+>.
+    PL/R offers most (if not all) of the capabilities a function writer has
+    in the R language.
+   </P
+><P
+>    Commands are available to access the database via the PostgreSQL Server 
+    Programming Interface (SPI) and to raise messages via <CODE
+CLASS="FUNCTION"
+>elog()
+    </CODE
+>. There is no way to access internals of the database backend.
+    However the user is able to gain OS-level access under the permissions of
+    the PostgreSQL user ID, as with a C function. Thus, any unprivileged
+    database user should not be permitted to use this language. It 
+    <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>must be installed as an untrusted procedural language</I
+></SPAN
+>
+    so that only database superusers can create functions in it. The writer of
+    a <SPAN
+CLASS="APPLICATION"
+>PL/R</SPAN
+> function must take care that the function
+    cannot be used to do anything unwanted, since it will be able to do
+    anything that could be done by a user logged in as the database
+    administrator.
+   </P
+><P
+>    An implementation restriction is that PL/R procedures cannot be used to
+    create input/output functions for new data types.
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-install.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>PL/R User's Guide - R Procedural Language</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Installation</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

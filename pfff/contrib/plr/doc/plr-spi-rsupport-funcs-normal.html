@@ -1,0 +1,831 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Normal Support</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PL/R User's Guide - R Procedural Language"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Database Access and Support Functions"
+HREF="plr-spi-rsupport-funcs.html"><LINK
+REL="PREVIOUS"
+TITLE="Database Access and Support Functions"
+HREF="plr-spi-rsupport-funcs.html"><LINK
+REL="NEXT"
+TITLE="RPostgreSQL Compatibility Support"
+HREF="plr-spi-rsupport-funcs-compat.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=ISO-8859-1"><META
+NAME="creation"
+CONTENT="2009-04-19T00:14:01"></HEAD
+><BODY
+CLASS="SECT1"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+>PL/R User's Guide - R Procedural Language</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-spi-rsupport-funcs.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-spi-rsupport-funcs.html"
+>Fast Backward</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 6. Database Access and Support Functions</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-spi-rsupport-funcs.html"
+>Fast Forward</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-spi-rsupport-funcs-compat.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLR-SPI-RSUPPORT-FUNCS-NORMAL"
+>6.1. Normal Support</A
+></H1
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><CODE
+CLASS="FUNCTION"
+>pg.spi.exec</CODE
+>
+           (<TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>)</DT
+><DD
+><P
+>        Execute an SQL query given as a string.  An error in the query
+        causes an error to be raised.  Otherwise, the command's return value
+        is the number of rows processed for <TT
+CLASS="COMMAND"
+>INSERT</TT
+>, 
+        <TT
+CLASS="COMMAND"
+>UPDATE</TT
+>, or <TT
+CLASS="COMMAND"
+>DELETE</TT
+> statements,
+        or zero if the query is a utility statement.  If the query is a
+        <TT
+CLASS="COMMAND"
+>SELECT</TT
+> statement, the values of the selected columns
+        are placed in an R data.frame with the target column names used as
+        the frame column names. However, non-numeric columns <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>are
+        not</I
+></SPAN
+> converted to factors. If you want all non-numeric
+        columns converted to factors, a convenience function <CODE
+CLASS="FUNCTION"
+>        pg.spi.factor</CODE
+> (described below) is provided.
+       </P
+><P
+>        If a field of a SELECT result is NULL, the target variable for it
+        is set to <SPAN
+CLASS="QUOTE"
+>"NA"</SPAN
+>. For example:
+        </P><PRE
+CLASS="PROGRAMLISTING"
+>create or replace function test_spi_tup(text) returns setof record as '
+  pg.spi.exec(arg1)
+' language 'plr';
+
+select * from test_spi_tup('select oid, NULL::text as nullcol,
+  typname from pg_type where typname = ''oid'' or typname = ''text''')
+  as t(typeid oid, nullcol text, typename name);
+ typeid | nullcol | typename
+--------+---------+----------
+     25 |         | text
+     26 |         | oid
+(2 rows)
+        </PRE
+><P>
+        The NULL values were passed to R as <SPAN
+CLASS="QUOTE"
+>"NA"</SPAN
+>, and on return to
+        PostgreSQL they were converted back to NULL.
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>pg.spi.prepare</CODE
+>
+           (<TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>, 
+            <TT
+CLASS="TYPE"
+>integer vector</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>type_vector</I
+></TT
+>)</DT
+><DD
+><P
+>        Prepares and saves a query plan for later execution. The saved plan
+        will be retained for the life of the current backend.
+       </P
+><P
+>        The query may use <I
+CLASS="FIRSTTERM"
+>arguments</I
+>, which are
+        placeholders for values to be supplied whenever the plan is actually
+        executed. In the query string, refer to arguments by the symbols
+        <TT
+CLASS="LITERAL"
+>$1</TT
+> ... <TT
+CLASS="LITERAL"
+>$n</TT
+>. If the query uses
+        arguments, the values of the argument types must be given as a vector. 
+        Pass <TT
+CLASS="LITERAL"
+>NA</TT
+> for <TT
+CLASS="REPLACEABLE"
+><I
+>type_vector</I
+></TT
+>
+        if the query has no arguments. The argument types must be identified
+        by the type Oids, shown in pg_type. Global variables are provided for
+        this use. They are named according to the convention TYPENAMEOID, where
+        the actual name of the type, in all capitals, is substituted for
+        TYPENAME. A support function, <CODE
+CLASS="FUNCTION"
+>load_r_typenames()</CODE
+>
+        must be used to make the predefined global variables available for use:
+        </P><PRE
+CLASS="PROGRAMLISTING"
+>select load_r_typenames();
+ load_r_typenames
+------------------
+ OK
+(1 row)
+        </PRE
+><P>
+        Another support function, <CODE
+CLASS="FUNCTION"
+>r_typenames()</CODE
+> may be
+        used to list the predefined Global variables:
+        </P><PRE
+CLASS="PROGRAMLISTING"
+>select * from r_typenames();
+    typename     | typeoid
+-----------------+---------
+ ABSTIMEOID      |     702
+ ACLITEMOID      |    1033
+ ANYARRAYOID     |    2277
+ ANYOID          |    2276
+ BITOID          |    1560
+ BOOLOID         |      16
+  [...]
+ TRIGGEROID      |    2279
+ UNKNOWNOID      |     705
+ VARBITOID       |    1562
+ VARCHAROID      |    1043
+ VOIDOID         |    2278
+ XIDOID          |      28
+(59 rows)
+        </PRE
+><P>
+       </P
+><P
+>        The return value from <CODE
+CLASS="FUNCTION"
+>pg.spi.prepare</CODE
+> is a query ID
+        to be used in subsequent calls to <CODE
+CLASS="FUNCTION"
+>pg.spi.execp</CODE
+>. See
+        <CODE
+CLASS="FUNCTION"
+>spi_execp</CODE
+> for an example.
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>pg.spi.execp</CODE
+>
+           (<TT
+CLASS="TYPE"
+>external pointer</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>saved_plan</I
+></TT
+>, 
+            <TT
+CLASS="TYPE"
+>variable list</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>value_list</I
+></TT
+>)</DT
+><DD
+><P
+>        Execute a query previously prepared with <CODE
+CLASS="FUNCTION"
+>pg.spi.prepare
+        </CODE
+>. <TT
+CLASS="REPLACEABLE"
+><I
+>saved_plan</I
+></TT
+> is the external
+        pointer returned by <CODE
+CLASS="FUNCTION"
+>pg.spi.prepare</CODE
+>. If the query
+        references arguments, a <TT
+CLASS="REPLACEABLE"
+><I
+>value_list</I
+></TT
+> must
+        be supplied: this is an R list of actual values for the plan arguments.
+        It must be the same length as the argument <TT
+CLASS="REPLACEABLE"
+><I
+>type_vector
+        </I
+></TT
+> previously given to <CODE
+CLASS="FUNCTION"
+>pg.spi.prepare</CODE
+>.
+        Pass <TT
+CLASS="LITERAL"
+>NA</TT
+> for <TT
+CLASS="REPLACEABLE"
+><I
+>value_list</I
+></TT
+>
+        if the query has no arguments. The following illustrates the use of
+        <CODE
+CLASS="FUNCTION"
+>pg.spi.prepare</CODE
+> and <CODE
+CLASS="FUNCTION"
+>pg.spi.execp</CODE
+>
+        with and without query arguments:
+        </P><PRE
+CLASS="PROGRAMLISTING"
+>create or replace function test_spi_prep(text) returns text as '
+  sp &#60;&#60;- pg.spi.prepare(arg1, c(NAMEOID, NAMEOID));
+  print("OK")
+' language 'plr';
+
+select test_spi_prep('select oid, typname from pg_type 
+  where typname = $1 or typname = $2');
+ test_spi_prep 
+---------------
+ OK
+(1 row)
+
+create or replace function test_spi_execp(text, text, text) returns setof record as '
+  pg.spi.execp(pg.reval(arg1), list(arg2,arg3))
+' language 'plr';
+
+select * from test_spi_execp('sp','oid','text') as t(typeid oid, typename name);
+ typeid | typename 
+--------+----------
+     25 | text
+     26 | oid
+(2 rows)
+
+create or replace function test_spi_prep(text) returns text as '
+  sp &#60;&#60;- pg.spi.prepare(arg1, NA);
+  print("OK")
+' language 'plr';
+
+select test_spi_prep('select oid, typname from pg_type
+  where typname = ''bytea'' or typname = ''text''');
+ test_spi_prep
+---------------
+ OK
+(1 row)
+
+create or replace function test_spi_execp(text) returns setof record as '
+  pg.spi.execp(pg.reval(arg1), NA)
+' language 'plr';
+
+select * from test_spi_execp('sp') as t(typeid oid, typename name);
+ typeid | typename
+--------+----------
+     17 | bytea
+     25 | text
+(2 rows)
+
+create or replace function test_spi_prep(text) returns text as '
+  sp &#60;&#60;- pg.spi.prepare(arg1);
+  print("OK")
+' language 'plr';
+
+select test_spi_prep('select oid, typname from pg_type
+  where typname = ''bytea'' or typname = ''text''');
+ test_spi_prep
+---------------
+ OK
+(1 row)
+
+create or replace function test_spi_execp(text) returns setof record as '
+  pg.spi.execp(pg.reval(arg1))
+' language 'plr';
+
+select * from test_spi_execp('sp') as t(typeid oid, typename name);
+ typeid | typename
+--------+----------
+     17 | bytea
+     25 | text
+(2 rows)
+        </PRE
+><P>
+       </P
+><P
+>        NULL arguments should be passed as individual <TT
+CLASS="LITERAL"
+>NA</TT
+> values
+        in <TT
+CLASS="REPLACEABLE"
+><I
+>value_list</I
+></TT
+>.
+       </P
+><P
+>        Except for the way in which the query and its arguments are specified,
+        <CODE
+CLASS="FUNCTION"
+>pg.spi.execp</CODE
+> works just like 
+        <CODE
+CLASS="FUNCTION"
+>pg.spi.exec</CODE
+>.
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>pg.spi.cursor_open</CODE
+>(
+       <TT
+CLASS="TYPE"
+> character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>cursor_name</I
+></TT
+>,
+       <TT
+CLASS="TYPE"
+>external pointer</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>saved_plan</I
+></TT
+>,
+       <TT
+CLASS="TYPE"
+>variable list</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>value_list</I
+></TT
+>)</DT
+><DD
+><P
+>        Opens a cursor identified by cursor_name. The cursor can then be used to scroll through
+        the results of a query plan previously prepared by pg.spi.prepare. Any arguments to 
+        the plan should be specified in argvalues similar to pg.spi.execp. Only read-only cursors
+        are supported at the moment.
+        </P><PRE
+CLASS="PROGRAMLISTING"
+>plan &#60;- pg.spi.prepare('SELECT * FROM pg_class');
+cursor_obj &#60;- pg.spi.cursor_open('my_cursor',plan);
+        </PRE
+><P>
+       </P
+><P
+>        Returns a cursor object that be be passed to <CODE
+CLASS="FUNCTION"
+>pg.spi.cursor_fetch</CODE
+>
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>pg.spi.cursor_fetch</CODE
+>(
+       <TT
+CLASS="TYPE"
+>external pointer</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>cursor</I
+></TT
+>,
+       <TT
+CLASS="TYPE"
+>boolean</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>forward</I
+></TT
+>,
+       <TT
+CLASS="TYPE"
+>integer</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>rows</I
+></TT
+>)</DT
+><DD
+><P
+>        Fetches rows from the cursor object previosuly returned by <CODE
+CLASS="FUNCTION"
+>pg.spi.cursor_open
+        </CODE
+>. If forward is TRUE then the cursor is moved forward to
+        fetch at most the number of rows required by the rows parameter.  If forward is 
+        FALSE then the cursor is moved backrwards at most the number of rows specified.
+       </P
+><P
+>        rows indicates the maximum number of rows that should be returned.
+       </P
+><P
+>        </P><PRE
+CLASS="PROGRAMLISTING"
+>plan &#60;- pg.spi.prepare('SELECT * FROM pg_class');
+cursor_obj &#60;- pg.spi.cursor_open('my_cursor',plan);
+data &#60;- pg.spi.cursor_fetch(cursor_obj,TRUE,as.integer(10));
+        </PRE
+><P>
+       </P
+><P
+>        Returns a data frame containing the results.
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>pg.spi.cursor_close</CODE
+>(
+       <TT
+CLASS="TYPE"
+>external pointer</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>cursor</I
+></TT
+>)</DT
+><DD
+><P
+>        Closes a cursor previously opened by <CODE
+CLASS="FUNCTION"
+>pg.spi.cursor_open</CODE
+>
+        </P><PRE
+CLASS="PROGRAMLISTING"
+>plan &#60;- pg.spi.prepare('SELECT * FROM pg_class');
+cursor_obj &#60;- pg.spi.cursor_open('my_cursor',plan);
+pg.spi.cursor_close(cursor_obj);
+        </PRE
+><P>
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>pg.spi.lastoid</CODE
+>()</DT
+><DD
+><P
+>        Returns the OID of the row inserted by the last query executed via
+        <CODE
+CLASS="FUNCTION"
+>pg.spi.exec</CODE
+> or <CODE
+CLASS="FUNCTION"
+>pg.spi.execp</CODE
+>,
+        if that query was a single-row INSERT.  (If not, you get zero.)
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>pg.quoteliteral</CODE
+>
+           (<TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>SQL_string</I
+></TT
+>)</DT
+><DD
+><P
+>        Duplicates all occurrences of single quote and backslash characters
+        in the given string.  This may be used to safely quote strings
+        that are to be inserted into SQL queries given to
+        <CODE
+CLASS="FUNCTION"
+>pg.spi.exec</CODE
+> or <CODE
+CLASS="FUNCTION"
+>pg.spi.prepare</CODE
+>.
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>pg.quoteident</CODE
+>
+           (<TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>SQL_string</I
+></TT
+>)</DT
+><DD
+><P
+>        Return the given string suitably quoted to be used as an identifier
+        in an SQL query string. Quotes are added only if necessary (i.e., if
+        the string contains non-identifier characters or would be case-folded).
+        Embedded quotes are properly doubled. This may be used to safely quote
+        strings that are to be inserted into SQL queries given to
+        <CODE
+CLASS="FUNCTION"
+>pg.spi.exec</CODE
+> or <CODE
+CLASS="FUNCTION"
+>pg.spi.prepare</CODE
+>.
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>pg.thrownotice</CODE
+>
+           (<TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>message</I
+></TT
+>)<BR><CODE
+CLASS="FUNCTION"
+>pg.throwerror</CODE
+>
+           (<TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>message</I
+></TT
+>)</DT
+><DD
+><P
+>        Emit a PostgreSQL <TT
+CLASS="LITERAL"
+>NOTICE</TT
+> or <TT
+CLASS="LITERAL"
+>ERROR</TT
+>
+        message. <TT
+CLASS="LITERAL"
+>ERROR</TT
+> also raises an error condition:
+        further execution of the function is abandoned, and the current
+        transaction is aborted.
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>pg.spi.factor</CODE
+>
+           (<TT
+CLASS="TYPE"
+>data.frame</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>data</I
+></TT
+>)</DT
+><DD
+><P
+>        Accepts an R <TT
+CLASS="TYPE"
+>data.frame</TT
+> as input, and converts all
+        non-numeric columns to <TT
+CLASS="TYPE"
+>factor</TT
+>s. This may be useful
+        for data.frames produced by <CODE
+CLASS="FUNCTION"
+>pg.spi.exec</CODE
+> or
+        <CODE
+CLASS="FUNCTION"
+>pg.spi.prepare</CODE
+>, because the PL/R conversion
+        mechanism does <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>not</I
+></SPAN
+> do that for you.
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-spi-rsupport-funcs.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-spi-rsupport-funcs-compat.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Database Access and Support Functions</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plr-spi-rsupport-funcs.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>RPostgreSQL Compatibility Support</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

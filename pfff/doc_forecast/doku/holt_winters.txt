@@ -1,0 +1,21 @@
+Holt Winters Model:
+
+Available parameters:
+has_season: 0/1 flag to specify if season values should be used. Standard:0
+has_trend: 0/1 flag to specify if trend values should be used. Standard:0
+seasontype: 0/1 flag to specify if the season is additive (1) or multiplicative(0). Standard:1
+period: integer value seasonlength. Standard:1
+alpha: float value to specify and lock alpha value. 
+beta: float value to specify and lock beta value
+gamma: float value to specify and lock gamma value
+err: String value to specify used Errorfunction. Available values:'smape','css', Standard: css
+
+Available Storage methods
+Modelindex,Table,Modelgraph,Off
+
+
+Example:
+
+create model gretlmodel82 for forecast of l_quantity on l_commitdate algorithm hwmodel PARAMETERS (has_season=1,has_trend=1,period=2,err='SMAPE')TRAINING_DATA (select l_commitdate,l_quantity from lineitem,orders where l_partkey=22 and o_orderkey=1) STORAGE Modelindex;
+
+

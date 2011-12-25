@@ -1,0 +1,3 @@
+SELECT a_time, SUM(a_visitors) am 
+	FROM australia
+	GROUP BY a_time ORDER BY a_time

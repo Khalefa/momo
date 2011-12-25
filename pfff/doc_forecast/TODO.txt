@@ -1,0 +1,42 @@
+ModelGraph:
+-store/restore (Christopher)
+-modelid für store/restore momentan nu mginId, kann man per mginid-listenposion eindeutiger bekommen
+-disagg-dennominator verschieben
+-drop modelgraph/filling backup command
+-documentation für store/restore/drop
+-targetEntryList nicht mehr in jedem Mgin (Index/global)
+-backupFunktionen als Funktionspointer
+-optflags werden nicht in der Table gespeichert, weder beim backup noch in der pg_table(betrifft HWModel)
+-fehlerarrays für Disaggregationen bei TopDown Fill
+
+
+ArModel:
+-Update implementieren
+-Reest implementieren
+-SMAPE und SSE Funktionen benutzen
+
+
+pg_table:
+-an mehreren Stellen kaputt
+
+
+Allgemein:
+-timestamp als Zeitspalten unterstützen, bisher ist nur datestamp drin
+-einfache Testcases: Modelgraph erstellen, befüllen und für Forecasts nutzen
+-Schrittweite für Zeitspalten untersuchen, entweder merken oder LinReg nutzen
+-wenn kein ORDER BY und/oder GROUP BY angegeben wird muss es expliziet eingefügt werden
+-timestamp nach reestimate fixen
+-modelvergleichscode in eigene Funktion auslagern
+-unterstützung für "interval"
+-Unterstützung für das implizite Erstellen mehrere Modelgraphmodelle
+
+Store:
+-disaggkey wird in jeder disaggregation gespeichert, reicht als Feld für das Model nach aktuellem Entwurf
+
+
+
+
+
+
+
+

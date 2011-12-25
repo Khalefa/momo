@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="f2db" basedir="." default="debugcompile">
+
+    <property name="src.dir"         value="src"/> <!-- the source dir -->
+    <property name="build.dir"       value="build"/> <!-- the build dir -->
+    <property name="classes.dir"     value="${build.dir}/classes"/>
+    <property name="jar.dir"         value="${build.dir}/jar"/>
+	<property name="dist.dir"        value="${build.dir}/dist"/>
+	<property name="doc.dir"         value="doc/api"/> <!-- the documentation dir -->
+	<property name="lib.dir"         value="libs"/> <!-- the external library dir -->
+	
+	<property name="jar.name"        value="f2db-demo.jar"/>
+	<property name="deploy.zip.name" value="F2DB-Demo.zip"/>
+	
+	<path id="classpath">
+	    <fileset dir="${lib.dir}"    includes="**/*.jar"/>
+	</path>
+
+	<!-- ***************************************** -->
+	<!-- main targets -->	
+	<!-- ***************************************** -->
+	
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    	<delete dir="./build/temp"/>
+    </target>
+	
+    <target name="compile">
+		<!-- create directory -->
+    	<mkdir dir="${classes.dir}"/>
+		<!-- compile source files -->
+    	<javac srcdir="${src.dir}" 
+    		   destdir="${classes.dir}" 
+    		   classpathref="classpath"
+    		   optimize="true"
+    	/>
+    	
+    	<echo message="Create temp dir"/>
+    	<mkdir dir="./build/temp"/>
+    </target>
+
+    <target name="debugcompile">
+		<!-- create directory -->
+    	<mkdir dir="${classes.dir}"/>
+		<!-- compile source files -->
+    	<javac srcdir="${src.dir}" 
+    		   destdir="${classes.dir}" 
+    		   classpathref="classpath"
+    		   debug="true"
+    		   debuglevel="lines,vars,source"
+    	/>
+    	
+    	<echo message="Create temp dir"/>
+    	<mkdir dir="./build/temp"/>
+    </target>
+	
+	<!--  This target creates a jar file of the application-->
+    <target name="jar" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.dir}/${jar.name}" basedir="${classes.dir}">
+        </jar>
+    </target>
+	
+	<!--  This target creates the javadoc documentation-->
+    <target name="javadoc" depends="compile">
+    	<!-- delete old javadoc -->
+    	<delete includeemptydirs="true">
+    		<fileset dir="${basedir}/${doc.dir}" includes="**/*"/>
+    	</delete>
+
+        <mkdir dir="${basedir}/${doc.dir}"/>
+    	<javadoc
+    	           destdir="${basedir}/${doc.dir}"
+    	           author="true"
+    	           version="true"
+    	           use="true"
+    	           windowtitle="F2DB Demo API">
+    	    <packageset dir="${src.dir}" defaultexcludes="yes"/>
+    	  </javadoc>
+    </target>
+	
+	<!-- ************************************************************* -->
+	<!-- This target deploys the application after a clean compile for -->
+	<!-- All Platforms 										 		   -->
+	<!-- ************************************************************* -->
+
+    <target name="deploy" depends="clean, compile, jar">
+    	<echo>----------------------------------------------------------------------------------------------------------------------------------</echo>
+    	<echo>NOTE: you must copy the latest Derby/S jars derby.jar, derbyclient.jar, derbytools.jar and derbys-aos.jar into the directory /libs</echo>
+    	<echo>----------------------------------------------------------------------------------------------------------------------------------</echo>
+    	
+    	<mkdir dir="${dist.dir}"/>
+    	<mkdir dir="${dist.dir}/${lib.dir}"/>
+    	
+    	<!-- copy libs -->
+    	<copy todir="${dist.dir}/${lib.dir}">
+    		<fileset dir="${lib.dir}" excludes="**/*.zip"/>
+    		<fileset dir="${jar.dir}"/>
+    	</copy>
+
+    	<!-- create a zip file -->
+		<zip destfile="${build.dir}/${deploy.zip.name}" basedir="${dist.dir}"/>
+
+    	<echo>----------------------------------------------------------------------------------------------------------------------------------</echo>
+    	<echo>NOTE: you must copy the latest Derby/S jars derby.jar, derbyclient.jar, derbytools.jar and derbys-aos.jar into the directory /libs</echo>
+    	<echo>----------------------------------------------------------------------------------------------------------------------------------</echo>
+	</target>
+	
+	<target name="deploywithtpch" depends="deploy">
+        <!-- create and import tpch -->
+    	<echo>Create and import tpch database</echo>
+        <java classname="org.apache.derby.tools.ij"
+        	logError="true"
+            dir="${dist.dir}"
+        	fork="true"
+        	classpathref="classpath">
+        	<!-- output="${dist.dir}/tpch.out" -->
+          <sysproperty key="ij.user" value="derby"/>
+          <sysproperty key="ij.password" value="derby"/>
+          <sysproperty key="ij.driver" value="org.apache.derby.jdbc.EmbeddedDriver"/>
+          <sysproperty key="ij.database" value="jdbc:derby:./databases/tpch;create=true"/>
+          <arg value="./resources/tpch/tpchImport.sql"/>
+        </java>
+
+		<echo>Create DB connection in derbys-demo</echo>
+		<echo file="${dist.dir}/properties/connections.properties">
+noConnections=1
+autocommit.0=true
+dbname.0=tpch
+embedded.0=true
+create.0=false
+driver.0=org.apache.derby.jdbc.EmbeddedDriver
+alias.0=tpch
+protocol.0=jdbc\:derby\:
+db2mode.0=true
+dbpassword.0=derby
+dblocation.0=./databases/
+dbport.0=1527
+noConnections=1
+dbuser.0=derby
+dblocale.0=null
+		</echo>
+		
+		<!-- create a zip file -->
+		<zip destfile="${build.dir}/${deploy.zip.name}" basedir="${dist.dir}" update="true"/>
+
+    	<echo>----------------------------------------------------------------------------------------------------------------------------------</echo>
+    	<echo>NOTE: you must copy the latest Derby/S jars derby.jar, derbyclient.jar, derbytools.jar and derbys-aos.jar into the directory /libs</echo>
+    	<echo>----------------------------------------------------------------------------------------------------------------------------------</echo>
+	</target>
+		
+	<!-- ***************************************** -->
+	<!-- extended targets -->
+	<!-- ***************************************** -->
+	
+    <target name="clean-compile" depends="clean,compile"/>
+    <target name="clean-build" depends="clean,jar"/>
+
+</project>

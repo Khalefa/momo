@@ -1,0 +1,1 @@
+CREATE MODELGRAPH l_partkey, o_orderkey FROM (SELECT * FROM orders, lineitem WHERE l_orderkey=o_orderkey AND o_orderkey IN(1,2,3,4,5)) CORRELATION(o_orderkey>l_partkey);

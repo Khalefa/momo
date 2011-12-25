@@ -1,0 +1,42 @@
+ModelGraph:
+
+Create a ModelGraph:
+	1st Example:(general)
+		CREATE MODELGRAPH a_state, a_reason FROM (SELECT * FROM australia);
+
+		-creates a ModelGraph for the australia table with one level for a_state, ans one Level for a_reason, each level conains ALL distinct values of the corresponding attribute
+
+	2nd Example:(EXCLUDING-Clause)
+		CREATE MODELGRAPH a_state EXCLUDING('NT'), a_reason FROM (SELECT * FROM australia);
+
+		-as 1 but the level for a_state DON'T contains a node for "NT"
+		-(no INCLUDING-Clause, this can be achieved by tuning the subselct)
+
+	3rd Example:(CORRELATION-Clause)
+		CREATE MODELGRAPH a_state, a_reason, a_city FROM (SELECT * FROM australia)CORRELATION(a_state>a_city);
+
+		-as 1, with one more level for a_city AND the Levels are now sorted in another direction than in the query, correlation are the toplevels, followed by uncorrelated attributes
+		-all attributes in one correlation must be chained with ">"(greater-than)
+		-several correlations must be separated by ","(comma)
+
+Store/Use Models in the ModelGraph:
+	1st Example:
+		** STORAGE MODELGRAPH;
+	
+		-** is a FORECAST-Clause or a CREATEMODEL-Clause
+
+Create Disaggscheme:
+	1st Example:
+		CREATE DISAGGSCHEME FOR FORECAST OF a_visitors on a_time WHERE a_reason='holiday' AND a_state='NSW' FROM a_state='NSW' ALGORITHM armodel;
+	
+		-FORECAST OF measure ON time defines the two relevant columns for the forecast
+		-after WHERE follows the description of the node in the Modelgraph the Disaggscheme is created for
+		-after FROM follows the description of the node on the Modelgraph the disaggregation is calculated from
+		-optional: ***WITH KEY 0.08; shows the disaggregationkey, if not given, the key is calculated(** e.g. 1)
+		
+
+Fill a ModelGraph:
+	1st Example:
+	FILL MODELGRAPH FOR FORECAST OF vis on a_time ALGORITHM armodel PARAMETERS(ar=10, err='SMAPE') TRAINING_DATA(SELECT a_time, sum(a_visitors) vis FROM australia group by a_time order by a_time) METHODE GREEDY;
+
+	-METHODE shows the fill-strategy : TOPDOWN(Model in root->Agg->...->Agg, rest Disaggmodels), GREEDY(the one and only Greedy-Algorithm, Models every and no where), BUTTOMUP(not implemented yet)		

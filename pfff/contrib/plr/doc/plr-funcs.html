@@ -1,0 +1,374 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Functions and Arguments</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PL/R User's Guide - R Procedural Language"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Installation"
+HREF="plr-install.html"><LINK
+REL="NEXT"
+TITLE="Passing Data Values"
+HREF="plr-data.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=ISO-8859-1"><META
+NAME="creation"
+CONTENT="2009-04-19T00:14:01"></HEAD
+><BODY
+CLASS="CHAPTER"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+>PL/R User's Guide - R Procedural Language</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-install.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-install.html"
+>Fast Backward</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-data.html"
+>Fast Forward</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-data.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="PLR-FUNCS"
+></A
+>Chapter 3. Functions and Arguments</H1
+><P
+>    To create a function in the <SPAN
+CLASS="APPLICATION"
+>PL/R</SPAN
+> language, use standard R
+    syntax, but without the enclosing braces or function assignment.
+    Instead of <TT
+CLASS="LITERAL"
+>myfunc &#60;- function(arguments) { function body }</TT
+>,
+    the body of your PL/R function is just <TT
+CLASS="LITERAL"
+>function body</TT
+>
+
+    </P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION <TT
+CLASS="REPLACEABLE"
+><I
+>funcname</I
+></TT
+> (<TT
+CLASS="REPLACEABLE"
+><I
+>argument-types</I
+></TT
+>)
+RETURNS <TT
+CLASS="REPLACEABLE"
+><I
+>return-type</I
+></TT
+> AS '
+    function body
+' LANGUAGE 'plr';
+    </PRE
+><P>
+   </P
+><P
+>    The body of the function is simply a piece of R script. When the function
+    is called, the argument values are passed as variables <TT
+CLASS="LITERAL"
+>    arg1</TT
+> ... <TT
+CLASS="LITERAL"
+>argN</TT
+> to the R script.  The result
+    is returned from the R code in the usual way. For example, a function
+    returning the greater of two integer values could be defined as:
+
+    </P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION r_max (integer, integer) RETURNS integer AS '
+    if (arg1 &#62; arg2)
+       return(arg1)
+    else
+       return(arg2)
+' LANGUAGE 'plr' STRICT;
+    </PRE
+><P>
+
+    Starting with PostgreSQL 8.0, arguments may be explicitly named when
+    creating a function. If an argument is explicitly named at function
+    creation time, that name will be available to your R script in place
+    of the usual <TT
+CLASS="LITERAL"
+>argN</TT
+> variable. For example:
+
+    </P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION sd(vals float8[]) RETURNS float AS '
+    sd(vals)
+' LANGUAGE 'plr' STRICT;
+    </PRE
+><P>
+
+    Note the clause <TT
+CLASS="LITERAL"
+>STRICT</TT
+>, which saves us from
+    having to think about NULL input values: if a NULL is passed, the
+    function will not be called at all, but will just return a NULL
+    result automatically.
+   </P
+><P
+>    In a non-strict function, if the actual value of an argument
+    is NULL, the corresponding <TT
+CLASS="LITERAL"
+>argN</TT
+> variable will be set
+    to a <TT
+CLASS="LITERAL"
+>NULL</TT
+> R object. For example, suppose that we wanted
+    <CODE
+CLASS="FUNCTION"
+>r_max</CODE
+> with one null and one non-null argument to
+    return the non-null argument, rather than NULL:
+
+    </P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION r_max (integer, integer) RETURNS integer AS '
+    if (is.null(arg1) &#38;&#38; is.null(arg2))
+        return(NULL)
+    if (is.null(arg1))
+        return(arg2)
+    if (is.null(arg2))
+        return(arg1)
+    if (arg1 &#62; arg2)
+       return(arg1)
+    arg2
+' LANGUAGE 'plr';
+    </PRE
+><P>
+   </P
+><P
+>    As shown above, to return a NULL value from a PL/R function, return
+    <TT
+CLASS="LITERAL"
+>NULL</TT
+>.  This can be done whether the function is strict
+    or not.
+   </P
+><P
+>    Composite-type (tuple) arguments are passed to the procedure as
+    R data.frames. The element names of the frame are the attribute
+    names of the composite type. If an attribute in the passed row
+    has the NULL value, it will appear as an "NA" in the frame. Here is
+    an example:
+
+    </P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE emp (name text, age int, salary numeric(10,2));
+INSERT INTO emp VALUES ('Joe', 41, 250000.00);
+INSERT INTO emp VALUES ('Jim', 25, 120000.00);
+INSERT INTO emp VALUES ('Jon', 35, 50000.00);
+CREATE OR REPLACE FUNCTION overpaid (emp) RETURNS bool AS '
+    if (200000 &#60; arg1$salary) {
+        return(TRUE)
+    }
+    if (arg1$age &#60; 30 &#38;&#38; 100000 &#60; arg1$salary) {
+        return(TRUE)
+    }
+    return(FALSE)
+' LANGUAGE 'plr';
+SELECT name, overpaid(emp) FROM emp;
+ name | overpaid
+------+----------
+ Joe  | t
+ Jim  | t
+ Jon  | f
+(3 rows)
+
+    </PRE
+><P>
+   </P
+><P
+>    There is also support for returning a composite-type result value:
+
+    </P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION get_emps() RETURNS SETOF emp AS '
+    names &#60;- c("Joe","Jim","Jon")
+    ages &#60;- c(41,25,35)
+    salaries &#60;- c(250000,120000,50000)
+    df &#60;- data.frame(name = names, age = ages, salary = salaries)
+    return(df)
+' LANGUAGE 'plr';
+select * from get_emps();
+ name | age |  salary
+------+-----+-----------
+ Jim  |  41 | 250000.00
+ Joe  |  25 | 120000.00
+ Jon  |  35 |  50000.00
+(3 rows)
+
+    </PRE
+><P>
+   </P
+><P
+>    An alternative method may be used to create a function in PL/R, if
+    certain criteria are met. First, the function must be a simple call
+    to an existing R function. Second, the function name used for the PL/R
+    function must match that of the R function exactly. If these two criteria
+    are met, the PL/R function may be defined with no body, and the arguments
+    will be passed directly to the R function of the same name. For example:
+    </P><PRE
+CLASS="PROGRAMLISTING"
+>create or replace function sd(_float8) returns float as '' language 'plr';
+select round(sd('{1.23,1.31,1.42,1.27}'::_float8)::numeric,8);
+   round    
+------------
+ 0.08180261
+(1 row)
+    </PRE
+><P>
+   </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>Tip: </B
+>     Because the function body is passed as an SQL string literal to
+     <TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>, you have to escape single
+     quotes and backslashes within your R source, typically by
+     doubling them.
+    </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-install.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-data.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Installation</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Passing Data Values</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

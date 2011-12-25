@@ -1,0 +1,1 @@
+FILL MODELGRAPH FOR FORECAST OF amt ON e_time ALGORITHM hwmodel PARAMETERS(has_season=1, has_trend=1, period=24, error='SSE') training_data (SELECT e_time, SUM(e_amount) AS amt FROM edemand GROUP BY e_time ORDER BY e_time) METHOD GREEDY

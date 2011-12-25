@@ -1,0 +1,4 @@
+SELECT e_time, SUM(e_amount) am 
+	FROM edemand
+	WHERE e_customer='me0'
+	GROUP BY e_time ORDER BY e_time FORECAST  AM on E_TIME NUMBER 10 ALGORITHM HWMODEL PARAMETERS(has_season=1,has_trend=1,period=24,error='SMAPE') STORAGE TABLE

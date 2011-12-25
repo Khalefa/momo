@@ -1,0 +1,16 @@
+32Bit-Versionen der Pakete:
+fortran
+readline
+zlib
+(nat. alle mit dem dev-package, wenn es mehr sein sollten zeigt postgres das beim bauen in der Konsole an, bei Ubuntu waren die alle in dem
+PaketQuellen)
+
+Die nlopt-bibliothek konfigurieren, bauen und installieren (den prefix magst du vlt. anders wählen):
+CXXFLAGS="-g -O0 -m32" CFLAGS="-g -O0 -m32" ./configure --prefix=/usr/ make make install
+
+postgres konfigurieren (bei lgomp weiß ich nicht obs mit muss, aber es hat bei mir nicht geschadet):
+CFLAGS="-m32 -O0 -lgomp" ./configure --prefix=DEINZIELPFAD --enable-debug --enable-cassert --enable-depend
+
+Danach ist auf jeden Fall ein initDB notwendig, weil jetzt einige Datentypen andere Längen haben.
+
+Der GCC und die libc sollten ebenfalls in der 32Bit version verfügbar sein, aber da muss man für jede Linuxdistribution schauen welche libs man dafür genau braucht.

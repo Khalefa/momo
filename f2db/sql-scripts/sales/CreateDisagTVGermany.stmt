@@ -1,0 +1,4 @@
+CREATE DISAGGSCHEME FOR FORECAST OF s_amount on s_time 
+WHERE s_product='PlasmaTV' and s_country='Germany' 
+FROM s_product='PlasmaTV' 
+ALGORITHM hwmodel;

@@ -1,0 +1,4 @@
+SELECT s_time, SUM(s_amount) am 
+	FROM sales
+	WHERE s_product='PlasmaTV'
+	GROUP BY s_time ORDER BY s_time

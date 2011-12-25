@@ -1,0 +1,20 @@
+Arima Model:
+
+Available parameters:
+ar: integer value to specify the number of non-seasonal autoregressive components 
+sar: integer value to specify the number of seasonal autoregressive components(additive)
+d:  integer value to specify the non-seasonal differencing
+ma: integer value to specify the number of non-seasonal movingaverage components
+sma: integer value to specify the number of seasonal movingaverage components(additive)
+sd:  integer value to specify the seasonal differencing
+period: integer value seasonlength. Standard:1
+err: String value to specify used Errorfunction. Available values:'smape','css','ml', Standard: css
+
+Available Storage methods
+Modelindex,Table,Modelgraph,Off
+
+
+
+Example:
+
+create model gretlmodel82 for forecast of vis on a_time algorithm armodel PARAMETERS (ar=7,ma=0,sma=0,sar=2,period=4,err='SMAPE')TRAINING_DATA (SELECT a_time, sum(a_visitors) vis FROM australia group by a_time order by a_time) FORCE STORAGE Modelindex;

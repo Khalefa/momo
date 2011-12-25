@@ -1,0 +1,478 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PostgreSQL Support Functions</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PL/R User's Guide - R Procedural Language"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="RPostgreSQL Compatibility Support"
+HREF="plr-spi-rsupport-funcs-compat.html"><LINK
+REL="NEXT"
+TITLE="Aggregate Functions"
+HREF="plr-aggregate-funcs.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=ISO-8859-1"><META
+NAME="creation"
+CONTENT="2009-04-19T00:14:01"></HEAD
+><BODY
+CLASS="CHAPTER"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+>PL/R User's Guide - R Procedural Language</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-spi-rsupport-funcs-compat.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-spi-rsupport-funcs.html"
+>Fast Backward</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-aggregate-funcs.html"
+>Fast Forward</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-aggregate-funcs.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="PLR-PGSQL-SUPPORT-FUNCS"
+></A
+>Chapter 7. PostgreSQL Support Functions</H1
+><P
+>     The following commands are available to use in PostgreSQL queries
+     to aid in the use of PL/R functions:
+    </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><CODE
+CLASS="FUNCTION"
+>install_rcmd</CODE
+>
+           (<TT
+CLASS="TYPE"
+>text</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>R_code</I
+></TT
+>)</DT
+><DD
+><P
+>        Install R code, given as a string, into the interpreter. See
+        <A
+HREF="plr-global-data.html"
+>Chapter 5</A
+> for an example.
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>reload_plr_modules</CODE
+>
+           ()</DT
+><DD
+><P
+>        Force re-loading of R code from the <TT
+CLASS="LITERAL"
+>plr_modules</TT
+>
+        table. It is useful after modifying the contents of
+        <TT
+CLASS="LITERAL"
+>plr_modules</TT
+>, so that the change will have an
+        immediate effect.
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>plr_singleton_array</CODE
+>
+           (<TT
+CLASS="TYPE"
+>float8</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>first_element</I
+></TT
+>)</DT
+><DD
+><P
+>        Creates a new PostgreSQL array, using element 
+        <TT
+CLASS="REPLACEABLE"
+><I
+>first_element</I
+></TT
+>. This function is predefined
+        to accept one float8 value and return a float8 array. The C function
+        that implements this PostgreSQL function is capable of accepting and
+        returning other data types, although the return type must be an array
+        of the input parameter type. It can also accept multiple input
+        parameters. For example, to define a <CODE
+CLASS="FUNCTION"
+>plr_array</CODE
+>
+        function to create a text array from two input text values:
+     </P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION plr_array (text, text)
+RETURNS text[]
+AS '$libdir/plr','plr_array'
+LANGUAGE 'C' WITH (isstrict);
+
+select plr_array('hello','world');
+   plr_array
+---------------
+ {hello,world}
+(1 row)
+     </PRE
+><P>
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>plr_array_push</CODE
+>
+           (<TT
+CLASS="TYPE"
+>float8[]</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>array</I
+></TT
+>,
+            <TT
+CLASS="TYPE"
+>float8</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>next_element</I
+></TT
+>)</DT
+><DD
+><P
+>        Pushes a new element onto the end of an existing PostgreSQL array.
+        This function is predefined to accept one float8 array and a float8
+        value, and return a float8 array. The C function that implements this
+        PostgreSQL function is capable of accepting and returning other data
+        types. For example, to define a <CODE
+CLASS="FUNCTION"
+>plr_array_push</CODE
+>
+        function to add a text value to an existing text array:
+     </P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION plr_array_push (_text, text)
+RETURNS text[]
+AS '$libdir/plr','plr_array_push'
+LANGUAGE 'C' WITH (isstrict);
+
+select plr_array_push(plr_array('hello','world'), 'how are you');
+       plr_array_push
+-----------------------------
+ {hello,world,"how are you"}
+(1 row)
+     </PRE
+><P>
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>plr_array_accum</CODE
+>
+           (<TT
+CLASS="TYPE"
+>float8[]</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>state_value</I
+></TT
+>,
+            <TT
+CLASS="TYPE"
+>float8</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>next_element</I
+></TT
+>)</DT
+><DD
+><P
+>        Creates a new array using <TT
+CLASS="REPLACEABLE"
+><I
+>next_element</I
+></TT
+> if
+        <TT
+CLASS="REPLACEABLE"
+><I
+>state_value</I
+></TT
+> is NULL. Otherwise, pushes
+        <TT
+CLASS="REPLACEABLE"
+><I
+>next_element</I
+></TT
+> onto the end of
+        <TT
+CLASS="REPLACEABLE"
+><I
+>state_value</I
+></TT
+>. This function is predefined
+        to accept one float8 array and a float8 value, and return a float8
+        array. The C function that implements this PostgreSQL function is
+        capable of accepting and returning other data types. For example,
+        to define a <CODE
+CLASS="FUNCTION"
+>plr_array_accum</CODE
+> function to add an
+        int4 value to an existing int4 array:
+        </P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION plr_array_accum (_int4, int4)
+RETURNS int4[]
+AS '$libdir/plr','plr_array_accum'
+LANGUAGE 'C';
+
+select plr_array_accum(NULL, 42);
+ plr_array_accum
+-------------
+ {42}
+(1 row)
+select plr_array_accum('{23,35}', 42);
+ plr_array_accum
+-----------------
+ {23,35,42}
+(1 row)
+        </PRE
+><P>
+        This function may be useful for creating custom aggregates. See
+        <A
+HREF="plr-aggregate-funcs.html"
+>Chapter 8</A
+> for an example.
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>load_r_typenames</CODE
+>()</DT
+><DD
+><P
+>        Installs datatype Oid variables into the R interpreter
+        as globals. See also <CODE
+CLASS="FUNCTION"
+>r_typenames</CODE
+> below.
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>r_typenames</CODE
+>()</DT
+><DD
+><P
+>        Displays the datatype Oid variables installed into the R interpreter
+        as globals. See <A
+HREF="plr-spi-rsupport-funcs.html"
+>Chapter 6</A
+> for an example.
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>plr_environ</CODE
+>()</DT
+><DD
+><P
+>        Displays the environment under which the Postmaster is currently
+        running. This may be useful to debug issues related to R specific
+        environment variables. This function is installed with EXECUTE
+        permission revoked from PUBLIC.
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>plr_set_display</CODE
+>(<TT
+CLASS="TYPE"
+>text</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>display</I
+></TT
+>)</DT
+><DD
+><P
+>        Sets the DISPLAY environment vaiable under which the Postmaster is currently
+        running. This may be useful if using R to plot to a virtual frame buffer.
+        This function is installed with EXECUTE permission revoked from PUBLIC.
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>plr_get_raw</CODE
+>(<TT
+CLASS="TYPE"
+>bytea</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>serialized_object</I
+></TT
+>)</DT
+><DD
+><P
+>        By default, when R objects are returned as type <TT
+CLASS="TYPE"
+>bytea</TT
+>, the
+        R object is serialized using an internal R function prior to sending to PostgreSQL.
+        This function unserializes the R object using another internal R function, and
+        returns the pure raw bytes to PostgreSQL. This is useful, for example, if the R
+        object being returned is a JPEG or PNG graphic for use outside of R.
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-spi-rsupport-funcs-compat.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-aggregate-funcs.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>RPostgreSQL Compatibility Support</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Aggregate Functions</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,13 @@
+--- Edit PostgreSQL configuration files ---
+append to [DATABASE_DIR]/pg_hba.conf
+	host all all 0.0.0.0/0 trust
+	
+change [DATABASE_DIR]/postgresql.conf 
+	listen_addresses='*'
+	
+	
+--- Open port 5432 of your firewall ---
+
+
+--- Test on linux ---
+	psql -h [SERVER_IP] -U [USER_NAME] -d [DB_NAME]

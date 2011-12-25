@@ -1,0 +1,545 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Passing Data Values</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PL/R User's Guide - R Procedural Language"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Functions and Arguments"
+HREF="plr-funcs.html"><LINK
+REL="NEXT"
+TITLE="Using Global Data"
+HREF="plr-global-data.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=ISO-8859-1"><META
+NAME="creation"
+CONTENT="2009-04-19T00:14:01"></HEAD
+><BODY
+CLASS="CHAPTER"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+>PL/R User's Guide - R Procedural Language</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-funcs.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-funcs.html"
+>Fast Backward</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-global-data.html"
+>Fast Forward</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-global-data.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="PLR-DATA"
+></A
+>Chapter 4. Passing Data Values</H1
+><P
+>    The argument values supplied to a PL/R function's script are
+    the input arguments converted to a corresponding R form.
+    See <A
+HREF="plr-data.html#PLR-ARGS-TABLE"
+>Table 4-1</A
+>. Scalar PostgreSQL
+    values become single element R vectors. One exception to
+    this are scalar bytea values. These are first converted to
+    R raw type, and then processed by the R unserialize command.
+    One-dimensional PostgreSQL arrays are converted to multi-element
+    R vectors, two-dimensional PostgreSQL arrays are mapped to R
+    matrixes, and three-dimensional PostgreSQL arrays are converted
+    to three-dimensional R arrays. Greater than three-dimensional
+    arrays are not supported. Composite-types are transformed into
+    R data.frames.
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="PLR-ARGS-TABLE"
+></A
+><P
+><B
+>Table 4-1. Function Arguments</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>PostgreSQL type</TH
+><TH
+>R type</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>logical</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>int2</TT
+>, <TT
+CLASS="TYPE"
+>int4</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>integer</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>int8</TT
+>, <TT
+CLASS="TYPE"
+>float4</TT
+>, <TT
+CLASS="TYPE"
+>float8</TT
+>,
+              <TT
+CLASS="TYPE"
+>cash</TT
+>, <TT
+CLASS="TYPE"
+>numeric</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>numeric</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>bytea</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>object</TT
+></TD
+></TR
+><TR
+><TD
+>everything else</TD
+><TD
+><TT
+CLASS="TYPE"
+>character</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>    Conversely, the return values are first coerced to R character, and
+    therefore anything that resolves to a string that is acceptable input
+    format for the function's declared return type will produce a result.
+    Again, there is an exception for scalar bytea return values. In this
+    case, the R object being returned is first processed by the R
+    serialize command, and then the binary result is directly mapped
+    into a PostgreSQL bytea datum. 
+    Similar to argument conversion, there is also a mapping between the
+    dimensionality of the declared PostgreSQL return type and the type of
+    R object. That mapping is shown in 
+    <A
+HREF="plr-data.html#PLR-DATA-RESULTS-DIMS-TABLE"
+>Table 4-2</A
+>
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="PLR-DATA-RESULTS-DIMS-TABLE"
+></A
+><P
+><B
+>Table 4-2. Function Result Dimensionality</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>PgSQL return type</TH
+><TH
+>R type</TH
+><TH
+>Result</TH
+><TH
+>Example</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>scalar</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>array</TT
+>, <TT
+CLASS="TYPE"
+>matrix</TT
+>, <TT
+CLASS="TYPE"
+>vector</TT
+></TD
+><TD
+>first column of first row</TD
+><TD
+>c(1,2,3) in R returns 1 in PostgreSQL</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>setof scalar</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>1D array</TT
+>, <TT
+CLASS="TYPE"
+>greater than 2D array</TT
+>, <TT
+CLASS="TYPE"
+>vector</TT
+></TD
+><TD
+>multi-row, 1 column set</TD
+><TD
+>array(1:10) in R returns 10 rows in PostgreSQL</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>scalar</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>data.frame</TT
+></TD
+><TD
+>textual representation of the first column's vector</TD
+><TD
+>data.frame(c(1,2,3)) in R returns 'c(1, 2, 3)'</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>setof scalar</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>2D array</TT
+>, <TT
+CLASS="TYPE"
+>matrix</TT
+>, <TT
+CLASS="TYPE"
+>data.frame</TT
+></TD
+><TD
+>#columns &#62; 1, error; #columns == 1, multi-row, 1 column set</TD
+><TD
+>(as.data.frame(array(1:10,c(2,5))))[,1] in R returns 2 rows of scalar</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>array</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>1D array</TT
+>, <TT
+CLASS="TYPE"
+>greater than 3D array</TT
+>, <TT
+CLASS="TYPE"
+>vector</TT
+></TD
+><TD
+>1D array</TD
+><TD
+>array(1:8,c(2,2,2,2)) in R returns {1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8}</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>array</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>2D array</TT
+>, <TT
+CLASS="TYPE"
+>matrix</TT
+>, <TT
+CLASS="TYPE"
+>data.frame</TT
+></TD
+><TD
+>2D array</TD
+><TD
+>array(1:4,c(2,2)) in R returns {{1,3},{2,4}}</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>array</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>3D array</TT
+></TD
+><TD
+>3D array</TD
+><TD
+>array(1:8,c(2,2,2)) in R returns {{{1,5},{3,7}},{{2,6},{4,8}}}</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>composite</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>1D array</TT
+>, <TT
+CLASS="TYPE"
+>greater than 2D array</TT
+>, <TT
+CLASS="TYPE"
+>vector</TT
+></TD
+><TD
+>first row, 1 column</TD
+><TD
+>array(1:8,c(2,2,2)) in R returns 1 row of scalar</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>setof composite</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>1D array</TT
+>, <TT
+CLASS="TYPE"
+>greater than 2D array</TT
+>, <TT
+CLASS="TYPE"
+>vector</TT
+></TD
+><TD
+>multi-row, 1 column set</TD
+><TD
+>array(1:8,c(2,2,2)) in R returns 8 rows of scalar</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>composite</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>2D array</TT
+>, <TT
+CLASS="TYPE"
+>matrix</TT
+>, <TT
+CLASS="TYPE"
+>data.frame</TT
+></TD
+><TD
+>first row, multi-column</TD
+><TD
+>array(1:4,c(2,2)) in R returns 1 row of 2 columns</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>setof composite</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>2D array</TT
+>, <TT
+CLASS="TYPE"
+>matrix</TT
+>, <TT
+CLASS="TYPE"
+>data.frame</TT
+></TD
+><TD
+>multi-row, multi-column set</TD
+><TD
+>array(1:4,c(2,2)) in R returns 2 rows of 2 columns</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-funcs.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-global-data.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Functions and Arguments</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Using Global Data</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

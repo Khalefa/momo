@@ -1,0 +1,400 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>RPostgreSQL Compatibility Support</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PL/R User's Guide - R Procedural Language"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Database Access and Support Functions"
+HREF="plr-spi-rsupport-funcs.html"><LINK
+REL="PREVIOUS"
+TITLE="Normal Support"
+HREF="plr-spi-rsupport-funcs-normal.html"><LINK
+REL="NEXT"
+TITLE="PostgreSQL Support Functions"
+HREF="plr-pgsql-support-funcs.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=ISO-8859-1"><META
+NAME="creation"
+CONTENT="2009-04-19T00:14:01"></HEAD
+><BODY
+CLASS="SECT1"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+>PL/R User's Guide - R Procedural Language</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-spi-rsupport-funcs-normal.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-spi-rsupport-funcs.html"
+>Fast Backward</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 6. Database Access and Support Functions</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-spi-rsupport-funcs.html"
+>Fast Forward</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-pgsql-support-funcs.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLR-SPI-RSUPPORT-FUNCS-COMPAT"
+>6.2. RPostgreSQL Compatibility Support</A
+></H1
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+></DT
+><DD
+><P
+>        The following functions are intended to provide some level of compatibility between
+        PL/R and RPostgreSQL (PostgreSQL DBI package). This allows, for example, a function
+        to be first prototyped using an R client, and then easily moved to PL/R for
+        production use.
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>dbDriver</CODE
+>
+           (<TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>dvr_name</I
+></TT
+>)<BR><CODE
+CLASS="FUNCTION"
+>dbConnect</CODE
+>
+           (<TT
+CLASS="TYPE"
+>DBIDriver</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>drv</I
+></TT
+>,
+            <TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>user</I
+></TT
+>,
+            <TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>password</I
+></TT
+>,
+            <TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>host</I
+></TT
+>,
+            <TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+>,
+            <TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+>,
+            <TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>tty</I
+></TT
+>,
+            <TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>options</I
+></TT
+>)<BR><CODE
+CLASS="FUNCTION"
+>dbSendQuery</CODE
+>
+           (<TT
+CLASS="TYPE"
+>DBIConnection</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>conn</I
+></TT
+>,
+            <TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>sql</I
+></TT
+>)<BR><CODE
+CLASS="FUNCTION"
+>fetch</CODE
+>
+           (<TT
+CLASS="TYPE"
+>DBIResult</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>rs</I
+></TT
+>,
+            <TT
+CLASS="TYPE"
+>integer</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>num_rows</I
+></TT
+>)<BR><CODE
+CLASS="FUNCTION"
+>dbClearResult</CODE
+>
+           (<TT
+CLASS="TYPE"
+>DBIResult</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>rs</I
+></TT
+>)<BR><CODE
+CLASS="FUNCTION"
+>dbGetQuery</CODE
+>
+           (<TT
+CLASS="TYPE"
+>DBIConnection</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>conn</I
+></TT
+>,
+            <TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>sql</I
+></TT
+>)<BR><CODE
+CLASS="FUNCTION"
+>dbReadTable</CODE
+>
+           (<TT
+CLASS="TYPE"
+>DBIConnection</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>conn</I
+></TT
+>,
+            <TT
+CLASS="TYPE"
+>character</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>)<BR><CODE
+CLASS="FUNCTION"
+>dbDisconnect</CODE
+>
+           (<TT
+CLASS="TYPE"
+>DBIConnection</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>conn</I
+></TT
+>)<BR><CODE
+CLASS="FUNCTION"
+>dbUnloadDriver</CODE
+>
+           (<TT
+CLASS="TYPE"
+>DBIDriver</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>drv</I
+></TT
+>)</DT
+><DD
+><P
+>        These functions nominally work like their RPostgreSQL counterparts
+        except that all queries are performed in the current database.
+        Therefore all driver and connection related parameters are
+        ignored, and dbDriver, dbConnect, dbDisconnect, and dbUnloadDriver
+        are no-ops.
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-spi-rsupport-funcs-normal.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-pgsql-support-funcs.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Normal Support</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plr-spi-rsupport-funcs.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>PostgreSQL Support Functions</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

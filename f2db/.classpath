@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="modules/tree/|modules/tree2/|modules/tree2/converter/|modules/tree2/jgraph/" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="libs/db2jcc.jar"/>
+	<classpathentry kind="lib" path="libs/colt.jar"/>
+	<classpathentry kind="lib" path="libs/db2jcc_license_c.jar"/>
+	<classpathentry kind="lib" path="libs/ktable_2.1.3.jar"/>
+	<classpathentry kind="lib" path="libs/org.eclipse.core.commands_3.3.0.jar"/>
+	<classpathentry kind="lib" path="libs/org.eclipse.jface_3.3.0.jar"/>
+	<classpathentry kind="lib" path="libs/org.eclipse.equinox.common_3.3.0.jar"/>
+	<classpathentry kind="lib" path="libs/commons-math-1.1.jar"/>
+	<classpathentry kind="lib" path="libs/derbys-aos.jar" sourcepath="/derbys-aos/src"/>
+	<classpathentry kind="lib" path="libs/jcommon-1.0.13.jar"/>
+	<classpathentry kind="lib" path="libs/jfreechart-1.0.10.jar"/>
+	<classpathentry kind="lib" path="libs/derby.jar"/>
+	<classpathentry kind="lib" path="libs/derbyclient.jar"/>
+	<classpathentry kind="lib" path="libs/derbytools.jar"/>
+	<classpathentry kind="lib" path="libs/jgraphx.jar"/>
+	<classpathentry kind="lib" path="libs/postgresql-8.4-702.jdbc4.jar"/>
+	<classpathentry kind="lib" path="libs/ext/swt/swt-win32-win32-x86.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>

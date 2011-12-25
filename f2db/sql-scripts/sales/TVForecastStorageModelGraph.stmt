@@ -1,0 +1,8 @@
+SELECT s_time, SUM(s_amount) am 
+FROM sales
+WHERE s_product='PlasmaTV'
+GROUP BY s_time ORDER BY s_time
+FORECAST am ON s_time
+NUMBER 12
+ALGORITHM hwmodel PARAMETERS(has_season=1, has_trend=1, period=12, error='SSE')
+STORAGE MODELGRAPH

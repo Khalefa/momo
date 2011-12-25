@@ -1,0 +1,425 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Trigger Procedures</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PL/R User's Guide - R Procedural Language"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="R Function Names"
+HREF="plr-func-naming.html"><LINK
+REL="NEXT"
+TITLE="License"
+HREF="plr-license.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=ISO-8859-1"><META
+NAME="creation"
+CONTENT="2009-04-19T00:14:01"></HEAD
+><BODY
+CLASS="CHAPTER"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+>PL/R User's Guide - R Procedural Language</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-func-naming.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-func-naming.html"
+>Fast Backward</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-license.html"
+>Fast Forward</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-license.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="PLR-TRIGGER-FUNC"
+></A
+>Chapter 11. Trigger Procedures</H1
+><A
+NAME="AEN593"
+></A
+><P
+>     Trigger procedures can be written in PL/R.
+     <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> requires that a procedure that is to be called
+     as a trigger must be declared as a function with no arguments
+     and a return type of <TT
+CLASS="LITERAL"
+>trigger</TT
+>.
+    </P
+><P
+>     The information from the trigger manager is passed to the procedure body
+     in the following variables:
+
+     <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="VARNAME"
+>pg.tg.name</TT
+></DT
+><DD
+><P
+>	 The name of the trigger from the <TT
+CLASS="COMMAND"
+>CREATE TRIGGER</TT
+> statement.
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>pg.tg.relid</TT
+></DT
+><DD
+><P
+>	 The object ID of the table that caused the trigger procedure
+	 to be invoked.
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>pg.tg.relname</TT
+></DT
+><DD
+><P
+>	 The name of the table that caused the trigger procedure
+	 to be invoked.
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>pg.tg.when</TT
+></DT
+><DD
+><P
+>	 The string <TT
+CLASS="LITERAL"
+>BEFORE</TT
+> or <TT
+CLASS="LITERAL"
+>AFTER</TT
+> depending on the
+	 type of trigger call.
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>pg.tg.level</TT
+></DT
+><DD
+><P
+>	 The string <TT
+CLASS="LITERAL"
+>ROW</TT
+> or <TT
+CLASS="LITERAL"
+>STATEMENT</TT
+> depending on the
+	 type of trigger call.
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>pg.tg.op</TT
+></DT
+><DD
+><P
+>	 The string <TT
+CLASS="LITERAL"
+>INSERT</TT
+>, <TT
+CLASS="LITERAL"
+>UPDATE</TT
+>, or
+	 <TT
+CLASS="LITERAL"
+>DELETE</TT
+> depending on the type of trigger call.
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>pg.tg.new</TT
+></DT
+><DD
+><P
+>     When the trigger is defined <TT
+CLASS="COMMAND"
+>FOR EACH ROW</TT
+>, 
+	 a data.frame containing the values of the new table
+	 row for <TT
+CLASS="COMMAND"
+>INSERT</TT
+> or <TT
+CLASS="COMMAND"
+>UPDATE</TT
+> actions. For
+     triggers defined <TT
+CLASS="COMMAND"
+>FOR EACH STATEMENT</TT
+> and for
+     <TT
+CLASS="COMMAND"
+>DELETE</TT
+> actions, set to <TT
+CLASS="LITERAL"
+>NULL</TT
+>.  The
+     atribute names are the table's column names.  Columns that are
+     null will be represented as NA.
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>pg.tg.old</TT
+></DT
+><DD
+><P
+>     When the trigger is defined <TT
+CLASS="COMMAND"
+>FOR EACH ROW</TT
+>, 
+	 a data.frame containing the values of the old table
+	 row for <TT
+CLASS="COMMAND"
+>DELETE</TT
+> or <TT
+CLASS="COMMAND"
+>UPDATE</TT
+> actions. For
+     triggers defined <TT
+CLASS="COMMAND"
+>FOR EACH STATEMENT</TT
+> and for
+     <TT
+CLASS="COMMAND"
+>INSERT</TT
+> actions, set to <TT
+CLASS="LITERAL"
+>NULL</TT
+>.  The
+     atribute names are the table's column names.  Columns that are
+     null will be represented as NA.
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>pg.tg.args</TT
+></DT
+><DD
+><P
+>	 A vector of the arguments to the procedure as given in the
+	 <TT
+CLASS="COMMAND"
+>CREATE TRIGGER</TT
+> statement.
+	</P
+></DD
+></DL
+></DIV
+><P>
+    </P
+><P
+>     The return value from a trigger procedure can be <TT
+CLASS="LITERAL"
+>NULL</TT
+> or a
+     one row data.frame matching the number and type of columns in the trigger
+     table. <TT
+CLASS="LITERAL"
+>NULL</TT
+> tells the trigger manager to silently
+     suppress the operation for this row. If a one row data.frame is returned,
+     it tells PL/R to return a possibly modified row to the trigger manager
+     that will be inserted instead of the one given in <TT
+CLASS="VARNAME"
+>pg.tg.new</TT
+>.
+     This works for <TT
+CLASS="COMMAND"
+>INSERT</TT
+> and <TT
+CLASS="COMMAND"
+>UPDATE</TT
+> only. Needless
+     to say that all this is only meaningful when the trigger is
+     <TT
+CLASS="LITERAL"
+>BEFORE</TT
+> and <TT
+CLASS="COMMAND"
+>FOR EACH ROW</TT
+>; otherwise the return
+     value is ignored.
+    </P
+><P
+>     Here's a little example trigger procedure that forces an integer value
+     in a table to keep track of the number of updates that are performed on the
+     row. For new rows inserted, the value is initialized to 0 and then
+     incremented on every update operation.
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION trigfunc_modcount() RETURNS trigger AS '
+
+    if (pg.tg.op == "INSERT")
+    {
+      retval &#60;- pg.tg.new
+      retval[pg.tg.args[1]] &#60;- 0
+    }
+    if (pg.tg.op == "UPDATE")
+    {
+      retval &#60;- pg.tg.new
+      retval[pg.tg.args[1]] &#60;- pg.tg.old[pg.tg.args[1]] + 1
+    }
+    if (pg.tg.op == "DELETE")
+      retval &#60;- pg.tg.old
+
+    return(retval)
+' LANGUAGE plr;
+
+CREATE TABLE mytab (num integer, description text, modcnt integer);
+
+CREATE TRIGGER trig_mytab_modcount BEFORE INSERT OR UPDATE ON mytab
+    FOR EACH ROW EXECUTE PROCEDURE trigfunc_modcount('modcnt');</PRE
+><P>
+
+     Notice that the trigger procedure itself does not know the column
+     name; that's supplied from the trigger arguments.  This lets the
+     trigger procedure be reused with different tables.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-func-naming.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-license.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>R Function Names</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>License</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

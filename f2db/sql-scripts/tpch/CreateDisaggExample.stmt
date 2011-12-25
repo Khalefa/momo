@@ -1,0 +1,1 @@
+CREATE DISAGGSCHEME FOR FORECAST OF l_quantity on l_commitdate WHERE o_orderkey=2 AND l_partkey=1062 FROM o_orderkey=2 ALGORITHM hwmodel;

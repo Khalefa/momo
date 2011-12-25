@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Aggregate Functions</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PL/R User's Guide - R Procedural Language"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="PostgreSQL Support Functions"
+HREF="plr-pgsql-support-funcs.html"><LINK
+REL="NEXT"
+TITLE="Loading R Modules at Startup"
+HREF="plr-module-funcs.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=ISO-8859-1"><META
+NAME="creation"
+CONTENT="2009-04-19T00:14:01"></HEAD
+><BODY
+CLASS="CHAPTER"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+>PL/R User's Guide - R Procedural Language</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-pgsql-support-funcs.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-pgsql-support-funcs.html"
+>Fast Backward</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-module-funcs.html"
+>Fast Forward</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-module-funcs.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="PLR-AGGREGATE-FUNCS"
+></A
+>Chapter 8. Aggregate Functions</H1
+><P
+>     Aggregates in PostgreSQL are extensible via SQL commands. In
+     general, to create a new aggregate, a state transition function and
+     possibly a final function are specified. The final function is used in
+     case the desired output of the aggregate is different from the data that
+     needs to be kept in the running state value.
+    </P
+><P
+>     There is more than one way to create a new aggregate using PL/R. A simple
+     aggregate can be defined using the predefined PostgreSQL C function,
+     <CODE
+CLASS="FUNCTION"
+>plr_array_accum</CODE
+> (see 
+     <A
+HREF="plr-pgsql-support-funcs.html"
+>Chapter 7</A
+>) as a state transition function,
+     and a PL/R function as a finalizer. For example:
+     </P><PRE
+CLASS="PROGRAMLISTING"
+>create or replace function r_median(_float8) returns float as '
+  median(arg1)
+' language 'plr';
+
+CREATE AGGREGATE median (
+  sfunc = plr_array_accum,
+  basetype = float8,
+  stype = _float8,
+  finalfunc = r_median
+);
+
+create table foo(f0 int, f1 text, f2 float8);
+insert into foo values(1,'cat1',1.21);
+insert into foo values(2,'cat1',1.24);
+insert into foo values(3,'cat1',1.18);
+insert into foo values(4,'cat1',1.26);
+insert into foo values(5,'cat1',1.15);
+insert into foo values(6,'cat2',1.15);
+insert into foo values(7,'cat2',1.26);
+insert into foo values(8,'cat2',1.32);
+insert into foo values(9,'cat2',1.30);
+
+select f1, median(f2) from foo group by f1 order by f1;
+  f1  | median 
+------+--------
+ cat1 |   1.21
+ cat2 |   1.28
+(2 rows)
+     </PRE
+><P>
+    </P
+><P
+>     A more complex aggregate might be created by using a PL/R functions for
+     both state transition and finalizer.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-pgsql-support-funcs.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-module-funcs.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>PostgreSQL Support Functions</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Loading R Modules at Startup</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

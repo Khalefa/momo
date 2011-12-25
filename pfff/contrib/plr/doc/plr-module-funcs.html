@@ -1,0 +1,224 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Loading R Modules at Startup</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PL/R User's Guide - R Procedural Language"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Aggregate Functions"
+HREF="plr-aggregate-funcs.html"><LINK
+REL="NEXT"
+TITLE="R Function Names"
+HREF="plr-func-naming.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=ISO-8859-1"><META
+NAME="creation"
+CONTENT="2009-04-19T00:14:01"></HEAD
+><BODY
+CLASS="CHAPTER"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+>PL/R User's Guide - R Procedural Language</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-aggregate-funcs.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-aggregate-funcs.html"
+>Fast Backward</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-func-naming.html"
+>Fast Forward</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-func-naming.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="PLR-MODULE-FUNCS"
+></A
+>Chapter 9. Loading R Modules at Startup</H1
+><P
+>	 PL/R has support for auto-loading R code during interpreter
+     initialization. It uses a special table, <TT
+CLASS="LITERAL"
+>plr_modules</TT
+>,
+     which is presumed to contain modules of R code. If this table exists, the
+     modules defined are fetched from the table and loaded into the R
+     interpreter immediately after creation.
+    </P
+><P
+>     The definition of the table <TT
+CLASS="LITERAL"
+>plr_modules</TT
+> is as follows:
+     </P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE plr_modules (
+  modseq int4,
+  modsrc text
+);
+     </PRE
+><P>
+     The field <TT
+CLASS="LITERAL"
+>modseq</TT
+> is used to control the order of
+     installation. The field <TT
+CLASS="LITERAL"
+>modsrc</TT
+> contains the full text
+     of the R code to be executed, including assignment if that is desired.
+     Consider, for example, the following statement:
+     </P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO plr_modules
+  VALUES (0, 'pg.test.module.load &#60;-function(msg) {print(msg)}');
+     </PRE
+><P>
+     This statement will cause an R function named <CODE
+CLASS="FUNCTION"
+>pg.test.module.load
+     </CODE
+> to be created in the R interpreter on initialization. A PL/R
+     function may now simply reference the function directly as follows:
+     </P><PRE
+CLASS="PROGRAMLISTING"
+>create or replace function pg_test_module_load(text) returns text as '
+  pg.test.module.load(arg1)
+' language 'plr';
+
+select pg_test_module_load('hello world');
+ pg_test_module_load 
+---------------------
+ hello world
+(1 row)
+     </PRE
+><P>
+    </P
+><P
+>     The table <TT
+CLASS="LITERAL"
+>plr_modules</TT
+> must be readable by all,
+     but it is wise to make it owned and writable only by the database
+     administrator.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plr-aggregate-funcs.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plr-func-naming.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Aggregate Functions</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>R Function Names</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
