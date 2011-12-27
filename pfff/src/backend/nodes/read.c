@@ -297,6 +297,7 @@ nodeRead(char *token, int tok_len)
 			token = pg_strtok(&tok_len);
 			if (token == NULL || token[0] != '}')
 				elog(ERROR, "did not find '}' at end of input node");
+//			elog(WARNING,"parsed token %s",token);
 			break;
 		case LEFT_PAREN:
 			{
@@ -363,6 +364,7 @@ nodeRead(char *token, int tok_len)
 						token = pg_strtok(&tok_len);
 						if (token == NULL)
 							elog(ERROR, "unterminated List structure");
+//						elog(WARNING,"__%s",token);
 					}
 				}
 				result = (Node *) l;

@@ -3678,7 +3678,7 @@ make_forecast(Plan *lefttree, Node *forecastExpr, Query **qry)
 	Plan	   		*plan = &node->plan;
 	ForecastExpr 	*forecast = (ForecastExpr*) forecastExpr;
 	List *createModels = NIL,
-				 *possiblePath = NIL;
+		 *possiblePath = NIL;
 		
 	// TODO: create cost model
 	copy_plan_costsize(plan, lefttree);
@@ -3694,7 +3694,7 @@ make_forecast(Plan *lefttree, Node *forecastExpr, Query **qry)
 	node->start = 1;
 	node->choose = forecast->choose;
 	node->end = forecast->length;
-	
+//	elog(WARNING, "create plan here !!"); 
 	//foreward targetDate
 	node->targetDateString = forecast->targetDateString;
 
@@ -3711,23 +3711,25 @@ make_forecast(Plan *lefttree, Node *forecastExpr, Query **qry)
 	
 	
 	// single time series, i.e. just one time series is specified in the select clause
-	if (list_length(forecast->categoryCols) == 0) {
+	if (list_length(forecast->categoryCols) == 0){
 		ModelInfo	*modelInfo;
 		bool 		found = false;
-
+//elog(WARNING,"!!!1");
 		// create model info
 		modelInfo = (ModelInfo*) makeNode(ModelInfo);
 		modelInfo->storeModel = forecast->storeModel;
 		modelInfo->numForecastValues = forecast->length;
-
+//elog(WARNING,"!!!2");
 if(forecast->algorithm->algorithmname)
 		modelInfo->forecastMethod = getStringAsModelType(forecast->algorithm->algorithmname);
 
-
+//elog(WARNING,"!!!3");
 		
 		// set time column
 		Assert(list_length(forecast->timeCols) == 1); // TODO: allow more than one time column, i.e. time variable is specified over several columns
+
 		modelInfo->time = (TargetEntry*) list_nth((*qry)->targetList, linitial_int(forecast->timeCols) - 1);
+	
 		modelInfo->granularity = forecast->granularity;
 		// set measure column
 		Assert(list_length(forecast->measureCols) == 1); // TODO: allow more than one measure column, i.e. multi-variate time series or different model for each time series
@@ -3736,7 +3738,7 @@ if(forecast->algorithm->algorithmname)
 		// set modelname
 		modelInfo->modelName = forecast->modelName;
 		modelInfo->parameterList = forecast->algorithm->algorithmparameter;
-
+	//	elog(WARNING,"!!!4   %d",modelInfo->forecastMethod);
 		/*
 		 * search existing model for single time series
 		 * if R is used as forecast method, we never store the model
@@ -3772,8 +3774,8 @@ if(forecast->algorithm->algorithmname)
 			
 			}
 
-
 		}
+		//elog(WARNING,"!!!5   %d",modelInfo->forecastMethod);
 		if ((forecast->storeModel == 0) && (modelInfo->forecastMethod != R)) // model index
 		{
 			//Get List of possible models
@@ -3796,11 +3798,9 @@ if(forecast->algorithm->algorithmname)
 			{
 				modelInfo->mix = forecast->whereExpr;
 				node->sourcetext = forecast->sourcetext;
-				
 			}
 			else
 			{
-				
 				//We have to init all models for later use
 				ListCell *lc;
 				foreach(lc, node->candidatemodelInfos)
@@ -3859,7 +3859,7 @@ if(forecast->algorithm->algorithmname)
 				}
 			}
 		}
-
+	//	elog(WARNING,"!!!6");
 		//no model was found, add a CreateModel Plannode
 		if (!node->candidatemodelInfos) {
 
@@ -3870,18 +3870,20 @@ if(forecast->algorithm->algorithmname)
 			{
 				modelInfo=linitial(createModels);
 			}
-			
-				node->candidatemodelInfos=lappend(node->candidatemodelInfos,modelInfo);
+			//elog(WARNING,"!!!7");
+			node->candidatemodelInfos=lappend(node->candidatemodelInfos,modelInfo);
 			createModel = (Plan*)make_create_forecast_model(lefttree,lfirst(list_head(node->candidatemodelInfos)),forecastExpr,qry);
-			
+
 			//use the field "end" to forward how many values should be forecasted
 			//so we can determine if creation of the model is explicit(#=-2) or implicit(otherwise)
 			((CreateForecastModel* )createModel)->end=forecast->length;
 
 			//forward the algorithmparameter if there are some
-			if(forecast->algorithm != NULL && forecast->algorithm->algorithmparameter != NULL)
+			if(forecast->algorithm != NULL && forecast->algorithm->algorithmparameter != NULL){
+		//						elog(WARNING,"!!!7a");
 				((AlgorithmClause*)((CreateForecastModel*)createModel)->algorithmStmt)->algorithmparameter = forecast->algorithm->algorithmparameter;
-
+}
+			//elog(WARNING,"!!!8");
 			plan->lefttree = createModel;
 		} else 
 		{
@@ -3893,7 +3895,7 @@ if(forecast->algorithm->algorithmname)
 			plan->startup_cost = 0.0;
 			plan->total_cost = 1.0;
 		}
-					// get forecast method and init algorithm
+		// get forecast method and init algorithm
 		if(forecast->algorithm->algorithmname==NULL)
 			modelInfo->forecastMethod = getStringAsModelType("hwmodel");
 		else
@@ -3924,6 +3926,7 @@ if(forecast->algorithm->algorithmname)
 			paraMeterList=lappend(paraMeterList,maP);
 			
 			forecast->algorithm->algorithmparameter=paraMeterList;
+
 		}
 	modelInfo->algInfo = initAlgorithmInfo(getModelTypeAsString(modelInfo->forecastMethod));
 	} else
@@ -3951,17 +3954,12 @@ CreateForecastModel
 	node->plan.lefttree = lefttree;
 	node->plan.qual = NIL;
 	node->plan.targetlist = lefttree->targetlist;
-
 	if((!exp->algorithm->trainingdata) && exp->algorithm->algorithmparameter)
 		node->algorithmStmt = palloc0(sizeof(AlgorithmClause));
 	else
 		node->algorithmStmt = exp->algorithm->trainingdata;
-	
-	
 	node->sourcetext = palloc0(strlen((char*)exp->sourcetext)+1);
 	strcpy(node->sourcetext,(char*)exp->sourcetext);
-
-
 	return node;
 }
 

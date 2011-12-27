@@ -104,6 +104,8 @@ TupleTableSlot *ExecCreateForecastModel(CreateForecastModelState *createState)
 		char* ptr;
 		int		braketCount = 1,
 					length = 0;
+	
+	  elog(WARNING,"ExecCreateForecastModel started");
 
 		if(innerPlanState(createState) == NULL){ //no explicit trainingdata given, use lefttree for training
 			trainingPlan = outerPlanState(createState);
@@ -288,7 +290,7 @@ TupleTableSlot *ExecCreateForecastModel(CreateForecastModelState *createState)
 		if(!createState->implicit){
 			resultTupleSlot = BuildModelInfoTupleTableSlot(createState->modelInfo);
 		}
-
+	  elog(WARNING,"ExecCreateForecastModel endeed");
 		return resultTupleSlot;
 }
 

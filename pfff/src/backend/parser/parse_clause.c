@@ -2137,7 +2137,7 @@ transformForecastClause(ParseState *pstate, ForecastExpr *expr, Query *query)
 	List			*timeCols = NIL;
 	List			*measureCols = NIL;
 	List			*categoryCols = NIL;
-
+elog(WARNING,"transform");
 	if (expr != NULL)
 	{
 	

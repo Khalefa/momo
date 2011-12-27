@@ -90,6 +90,7 @@ ExecSingleForecast(SingleForecastState *forecastState)
 
 		forecastState->current++;
 	}
+	elog(WARNING,"__a__");
 	return outSlot;
 }
 

@@ -248,6 +248,18 @@ _readAlgorithmParameter(void)
 	READ_DONE();
 }
 
+static AlgorithmClause *
+_readAlgorithmClause(void)
+{
+	READ_LOCALS(AlgorithmClause);
+
+	READ_STRING_FIELD(algorithmname);
+	READ_NODE_FIELD(algorithmparameter);
+	READ_NODE_FIELD(trainingdata);
+
+	READ_DONE();
+}
+
 /*
  * _readDeclareCursorStmt
  */
@@ -490,6 +502,17 @@ _readParam(void)
 	READ_DONE();
 }
 
+
+static ColumnRef * 
+_readColumnRef(void)
+{
+
+	READ_LOCALS(ColumnRef);
+    READ_NODE_FIELD(fields);
+	READ_INT_FIELD(location);
+
+	READ_DONE();
+}
 /*
  * _readAggref
  */
@@ -1140,15 +1163,24 @@ _readForecastExpr(void)
 {
 	READ_LOCALS(ForecastExpr);
 
-	READ_NODE_FIELD(time);
 	READ_NODE_FIELD(timeCols);
+	READ_NODE_FIELD(measureCols);
+	READ_NODE_FIELD(categoryCols);
+	READ_NODE_FIELD(algorithm);
+	READ_STRING_FIELD(sourcetext);
+	READ_INT_FIELD(choose);
+	READ_INT_FIELD(length);
+	READ_INT_FIELD(storeModel);
+
+
+	/*READ_NODE_FIELD(timeCols);
 	READ_NODE_FIELD(measureCols);
 	READ_NODE_FIELD(categoryCols);
 	READ_NODE_FIELD(whereExpr);
 	READ_INT_FIELD(granularity);
 	READ_INT_FIELD(aggType);
 	READ_INT_FIELD(length);
-
+*/
 	READ_DONE();
 }
 
@@ -1355,10 +1387,14 @@ parseNodeString(void)
 		return_value = _readDecomposeExpr();
 	else if (MATCH("ALGORITHMPARAMETER", 18))
 		return_value = _readAlgorithmParameter();
+    else if (MATCH("ALGORITHMCLAUSE",15))
+		return_value = _readAlgorithmClause();
 	else if (MATCH("A_CONSTI", 8))
 		return_value = _readAConsti();
 	else if (MATCH("A_CONSTS", 8))
 		return_value = _readAConsts();
+	else if (MATCH("COLUMNREF",9))
+		return_value = _readColumnRef();
 	else
 	{
 		elog(ERROR, "badly formatted node string \"%.32s\"...", token);

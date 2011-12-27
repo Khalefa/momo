@@ -44,6 +44,9 @@
 #define WRITE_INT_FIELD(fldname) \
 	appendStringInfo(str, " :" CppAsString(fldname) " %d", node->fldname)
 
+#define WRITE_INT(fldname) \
+	appendStringInfo(str, " :" CppAsString(fldname) " %d", fldname)
+
 /* Write an unsigned integer field (anything written as ":fldname %u") */
 #define WRITE_UINT_FIELD(fldname) \
 	appendStringInfo(str, " :" CppAsString(fldname) " %u", node->fldname)
@@ -1301,23 +1304,28 @@ _outFromExpr(StringInfo str, FromExpr *node)
 	WRITE_NODE_FIELD(fromlist);
 	WRITE_NODE_FIELD(quals);
 }
+static void
+_outAlgorithmClause(StringInfo str, AlgorithmClause *node)
+{
+	WRITE_NODE_TYPE("ALGORITHMCLAUSE");	
 
+	WRITE_STRING_FIELD(algorithmname);
+	WRITE_NODE_FIELD(algorithmparameter);
+	WRITE_NODE_FIELD(trainingdata);
+}
 static void
 _outForecastExpr(StringInfo str, ForecastExpr *node)
 {
 	WRITE_NODE_TYPE("FORECASTEXPR");
 	
-	/*WRITE_NODE_FIELD(time);
-	WRITE_LIST_FIELD(measures);
-	WRITE_STRING_FIELD(algorithm);
-	WRITE_LIST_FIELD(timeCols);
-	WRITE_LIST_FIELD(measureCols);
-	WRITE_LIST_FIELD(categoryCols);
-	WRITE_NODE_FIELD(whereExpr);
-	WRITE_INT_FIELD(granularity);
-	WRITE_INT_FIELD(aggType);
+	WRITE_NODE_FIELD(timeCols);
+	WRITE_NODE_FIELD(measureCols);
+	WRITE_NODE_FIELD(categoryCols);
+	WRITE_NODE_FIELD(algorithm);
+	WRITE_STRING_FIELD(sourcetext);
+	WRITE_INT_FIELD(choose);	
 	WRITE_INT_FIELD(length);
-	WRITE_BOOL_FIELD(index);*/
+	WRITE_INT_FIELD(storeModel);
 }
 
 static void
@@ -2431,6 +2439,7 @@ _outFkConstraint(StringInfo str, FkConstraint *node)
 static void
 _outNode(StringInfo str, void *obj)
 {
+    int toprint=0;
 	if (obj == NULL)
 		appendStringInfo(str, "<>");
 	else if (IsA(obj, List) ||IsA(obj, IntList) || IsA(obj, OidList))
@@ -2877,14 +2886,20 @@ _outNode(StringInfo str, void *obj)
 				_outDecompose(str, obj);
 				break;
 			case T_SingleForecast:
+				 toprint=1;
 				_outSingleForecast(str, obj);
 				break;
 			case T_CreateForecastModel:
+				 toprint=1;
 				_outCreateForecastModel(str,obj);
 				break;
 			case T_AlgorithmParameter:
 				_outAlgorithmParameter(str,obj);
 				break;
+			case T_AlgorithmClause:
+				_outAlgorithmClause(str,obj);
+				break;
+
 			default:
 
 				/*
@@ -2896,6 +2911,7 @@ _outNode(StringInfo str, void *obj)
 				break;
 		}
 		appendStringInfoChar(str, '}');
+		if(toprint) elog(WARNING,"out str %s", str->data);
 	}
 }
 

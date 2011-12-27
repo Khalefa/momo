@@ -60,7 +60,7 @@ SeqNext(SeqScanState *node)
 	scanrelid = ((SeqScan *) node->ps.plan)->scanrelid;
 	direction = estate->es_direction;
 	slot = node->ss_ScanTupleSlot;
-
+	elog(WARNING,"___b___ %d",scanrelid);
 	/*
 	 * Check if we are evaluating PlanQual for tuple of this relation.
 	 * Additional checking is not good, but no other way for now. We could
@@ -150,7 +150,7 @@ InitScanRelation(SeqScanState *node, EState *estate)
 	 */
 	currentRelation = ExecOpenScanRelation(estate,
 									 ((SeqScan *) node->ps.plan)->scanrelid);
-
+    elog(WARNING, "%d -- %d ", currentRelation->rd_node.relNode, ((SeqScan *) node->ps.plan)->scanrelid );
 	currentScanDesc = heap_beginscan(currentRelation,
 									 estate->es_snapshot,
 									 0,
@@ -178,7 +178,7 @@ ExecInitSeqScan(SeqScan *node, EState *estate, int eflags)
 	 */
 	Assert(outerPlan(node) == NULL);
 	Assert(innerPlan(node) == NULL);
-
+    elog(WARNING,"ExecInitSeqScan started");
 	/*
 	 * create state structure
 	 */
@@ -223,7 +223,7 @@ ExecInitSeqScan(SeqScan *node, EState *estate, int eflags)
 	 */
 	ExecAssignResultTypeFromTL(&scanstate->ps);
 	ExecAssignScanProjectionInfo(scanstate);
-
+    elog(WARNING,"ExecInitSeqScan ended");
 	return scanstate;
 }
 
@@ -246,7 +246,7 @@ ExecEndSeqScan(SeqScanState *node)
 {
 	Relation	relation;
 	HeapScanDesc scanDesc;
-
+    elog(WARNING,"ExecENDSeqScan started");
 	/*
 	 * get information from node
 	 */
@@ -273,6 +273,7 @@ ExecEndSeqScan(SeqScanState *node)
 	 * close the heap relation.
 	 */
 	ExecCloseScanRelation(relation);
+    elog(WARNING,"ExecENDSeqScan ended");
 }
 
 /* ----------------------------------------------------------------
